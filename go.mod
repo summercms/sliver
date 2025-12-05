@@ -35,7 +35,7 @@ require (
 	github.com/onsi/gomega v1.10.0
 	github.com/pquerna/otp v1.3.0
 	github.com/shirou/gopsutil/v3 v3.22.8
-	github.com/sirupsen/logrus v1.9.0
+	github.com/sirupsen/logrus v1.9.1
 	github.com/spf13/cobra v1.5.0
 	github.com/stretchr/testify v1.8.0
 	github.com/things-go/go-socks5 v0.0.3-0.20210722055343-24af464efe43
