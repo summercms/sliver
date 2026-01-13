@@ -2,25 +2,14 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package typeparams contains common utilities for writing tools that interact
-// with generic Go code, as introduced with Go 1.18.
+// Package typeparams contains common utilities for writing tools that
+// interact with generic Go code, as introduced with Go 1.18. It
+// supplements the standard library APIs. Notably, the StructuralTerms
+// API computes a minimal representation of the structural
+// restrictions on a type parameter.
 //
-// Many of the types and functions in this package are proxies for the new APIs
-// introduced in the standard library with Go 1.18. For example, the
-// typeparams.Union type is an alias for go/types.Union, and the ForTypeSpec
-// function returns the value of the go/ast.TypeSpec.TypeParams field. At Go
-// versions older than 1.18 these helpers are implemented as stubs, allowing
-// users of this package to write code that handles generic constructs inline,
-// even if the Go version being used to compile does not support generics.
-//
-// Additionally, this package contains common utilities for working with the
-// new generic constructs, to supplement the standard library APIs. Notably,
-// the StructuralTerms API computes a minimal representation of the structural
-// restrictions on a type parameter. In the future, this API may be available
-// from go/types.
-//
-// See the example/README.md for a more detailed guide on how to update tools
-// to support generics.
+// An external version of these APIs is available in the
+// golang.org/x/exp/typeparams module.
 package typeparams
 
 import (
@@ -42,7 +31,7 @@ func UnpackIndexExpr(n ast.Node) (x ast.Expr, lbrack token.Pos, indices []ast.Ex
 	switch e := n.(type) {
 	case *ast.IndexExpr:
 		return e.X, e.Lbrack, []ast.Expr{e.Index}, e.Rbrack
-	case *IndexListExpr:
+	case *ast.IndexListExpr:
 		return e.X, e.Lbrack, e.Indices, e.Rbrack
 	}
 	return nil, token.NoPos, nil, token.NoPos
@@ -63,7 +52,7 @@ func PackIndexExpr(x ast.Expr, lbrack token.Pos, indices []ast.Expr, rbrack toke
 			Rbrack: rbrack,
 		}
 	default:
-		return &IndexListExpr{
+		return &ast.IndexListExpr{
 			X:       x,
 			Lbrack:  lbrack,
 			Indices: indices,
@@ -72,8 +61,8 @@ func PackIndexExpr(x ast.Expr, lbrack token.Pos, indices []ast.Expr, rbrack toke
 	}
 }
 
-// IsTypeParam reports whether t is a type parameter.
+// IsTypeParam reports whether t is a type parameter (or an alias of one).
 func IsTypeParam(t types.Type) bool {
-	_, ok := t.(*TypeParam)
+	_, ok := types.Unalias(t).(*types.TypeParam)
 	return ok
 }
